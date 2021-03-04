@@ -1,23 +1,52 @@
-function getRecipeList() {
+async function getRecipeList() {
     const url = ` http://localhost:3030/jsonstore/cookbook/recipes`;
     const main = document.querySelector('main')
 
-    fetch (url)
-        .then(response => response.json())
-        .then(recipes => {
-            main.innerHTML = '';
-            Object.values(recipes).forEach (r => {
-                const result = e('article', {className: 'preview'},
-                    e('div', {className: 'title'}, e('h2', {}, r.name)),
-                    e('div', {className: 'small'}, e('img', {src: r.img}))
-                );
-                main.appendChild(result)
-            })
-        })
-        .catch(error => {
-            alert(error.message)
-        })
+    try {
+        const response = await fetch(url)
+        if (response.ok == false){
+            throw new Error (response.statusText)
+        }
+
+        const recipes = await response.json();
+        main.innerHTML = '';
+        Object.values(recipes).map(createPreview).forEach (r => main.appendChild(r))
+    } catch(error) {
+        alert(error.message)
+    }
 }
+
+function createPreview(recipe) {
+    const result = e('article', {className: 'preview'},
+    e('div', {className: 'title'}, e('h2', {}, recipe.name)),
+    e('div', {className: 'small'}, e('img', {src: recipe.img}))
+    );
+    result.addEventListener('click', () => getDetails(recipe._id, result))
+    return result;
+}
+
+async function getDetails(id, preview){
+    const url = 'http://localhost:3030/jsonstore/cookbook/details/' + id;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const result = e('article', {}, 
+        e('h2', {}, data.name),
+        e('div', {className: 'band' },
+            e('div', {className: 'thumb' }, e('img', {src: data.img})),
+            e('div', {className: 'ingredients' },
+                e('h3', {}, 'Ingredients'),
+                e('ul', {}, data.ingredients.map(i => e('li', {}, i)))
+            )
+        ),
+        e('div', {className: 'description' }, 
+            e('h3', {}, 'Preparation:'),
+            data.steps.map(s => e('p', {}, s))
+        )
+    )
+    preview.parentNode.replaceChild(result, preview)
+}
+
 
 window.addEventListener('load', () => {
     getRecipeList();
