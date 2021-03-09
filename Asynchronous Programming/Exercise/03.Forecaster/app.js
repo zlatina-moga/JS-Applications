@@ -29,7 +29,6 @@ async function getWeather(){
         getCurrent(code),
         getUpcoming(code)
     ])
-    button.disabled = true;
 }
 
 
