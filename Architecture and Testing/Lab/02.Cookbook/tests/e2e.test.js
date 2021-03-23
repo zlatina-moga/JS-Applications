@@ -79,7 +79,7 @@ describe('E2E tests', function () {
 
             const [request] = await Promise.all([
                 page.waitForRequest(request => request.url().includes('/users/register') && request.method() == 'POST'),
-                page.click('[tyope="submit"]')
+                page.click('[type="submit"]')
             ])
 
             const postData = JSON.parse(request.postData())
