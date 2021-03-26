@@ -9,7 +9,7 @@ const searchTemplate = (towns, match) => html`
          ${towns.map(t => itemTemplate(t, match))}
       </ul>
    </div>
-   <input type="text" id="searchText" />
+   <input type="text" id="searchText" .value=${match}>
   <button @click=${search}>Search</button>
   <div id="result"></div>
 </article>`;
