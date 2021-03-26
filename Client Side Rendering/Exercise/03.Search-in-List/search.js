@@ -11,7 +11,7 @@ const searchTemplate = (towns, match) => html`
    </div>
    <input type="text" id="searchText" .value=${match}>
   <button @click=${search}>Search</button>
-  <div id="result"></div>
+  <div id="result">${countMatches(towns, match)}</div>
 </article>`;
 
 const itemTemplate = (name, match) => html `
@@ -28,4 +28,13 @@ function update(match = ''){
 function search(event) {
    const match = event.target.parentNode.querySelector('input').value;
    update(match)
+}
+
+function countMatches(towns, match){
+   const matches = towns.filter(t => match && t.toLowerCase().includes(match.toLowerCase())).length;
+   if (matches){
+      return `${matches} matches found`
+   } else {
+      return '';
+   }
 }
