@@ -17,14 +17,14 @@ export async function getItemById(id){
 
 export async function getMyFurniture(){
     const userId = sessionStorage.getItem('userId')
-    return await api.get(host + `/catalog?where=_ownerId%3D%22${userId}%22`)
+    return await api.get(host + `/data/catalog?where=_ownerId%3D%22${userId}%22`)
 }
 
 export async function createRecord(data){
     return await api.post(host + '/data/catalog', data)
 }
 
-export async function editRecord(data, id){
+export async function editRecord(id, data){
     return await api.put(host + '/data/catalog/' + id, data)
 }
 
