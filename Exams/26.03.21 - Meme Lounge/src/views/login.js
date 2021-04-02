@@ -1,5 +1,6 @@
-import {html} from '../../node_modules/lit-html/lit-html.js';
-import {login} from '../api/data.js'
+import {html, noChange} from '../../node_modules/lit-html/lit-html.js';
+import {login} from '../api/data.js';
+import {notify} from '../notification.js';
 
 const loginTemplate = (onSubmit) => html`
 <section id="login">
@@ -27,8 +28,12 @@ export async function loginPage(ctx) {
         const email = formData.get('email').trim();
         const password = formData.get('password').trim();
 
-        await login(email, password);
-        ctx.setUserNav();
-        ctx.page.redirect('/catalog');
+        try {
+            await login(email, password);
+            ctx.setUserNav();
+            ctx.page.redirect('/catalog');
+        } catch (err) {
+            notify(err.message)
+        }  
     }
 }
