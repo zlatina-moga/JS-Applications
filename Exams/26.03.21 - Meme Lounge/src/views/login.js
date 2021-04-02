@@ -29,6 +29,9 @@ export async function loginPage(ctx) {
         const password = formData.get('password').trim();
 
         try {
+            if(!email || !password){
+                throw new Error('All fields are required!')
+            }
             await login(email, password);
             ctx.setUserNav();
             ctx.page.redirect('/catalog');
