@@ -1,7 +1,7 @@
 import { showHome } from './home.js';
 
 async function onSubmit(event) {
-    event.preventDeafult();
+    event.preventDefault();
     const formData = new FormData(event.target);
     const email = formData.get('email');
     const password = formData.get('password');
