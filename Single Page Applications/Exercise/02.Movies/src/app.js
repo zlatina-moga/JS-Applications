@@ -59,6 +59,7 @@ function setUpNavigation(){
     document.getElementById('logoutBtn').addEventListener('click', logout)
 }
 
+
 async function logout(){
     const token = sessionStorage.getItem('authToken');
     const response = await fetch('http://localhost:3030/users/logout', {
