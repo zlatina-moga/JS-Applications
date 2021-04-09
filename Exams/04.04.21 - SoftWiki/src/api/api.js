@@ -11,13 +11,17 @@ async function request(url, options){
             throw new Error(error.message)
         }
         try {
-            const data = await response.json();
-            return data;
+            return await response.json();
         } catch (err){
             return response;
         }
     } catch (error) {
-        console.error(error.message);
+        if (error.message === 'Invalid access token' || error.message === 'User session does not exist') {
+            sessionStorage.removeItem('authToken');
+            throw error;
+        }
+
+        console.error(message)
         throw error;
     }
 }
@@ -42,7 +46,7 @@ function getOptions(method = 'get', body){
 
 
 export async function get(url){
-    return await request(url, getOptions)
+    return await request(url, getOptions())
 }
 
 export async function post(url, data){
