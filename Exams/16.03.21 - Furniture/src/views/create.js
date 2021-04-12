@@ -1,5 +1,6 @@
 import {html} from 'https://unpkg.com/lit-html?module';
-import {createRecord} from '../api/data.js'
+import {createRecord} from '../api/data.js';
+import {notify, clear} from '../notification.js'
 
 const createTemplate = (onSubmit) => html`<div class="row space-top">
 <div class="col-md-12">
@@ -54,13 +55,14 @@ export async function createPage(ctx){
         const data = [...formData.entries()].reduce((a, [k, v]) => Object.assign(a, { [k]: v}), {});
 
         if (Object.entries(data).filter(([k, v]) => k != 'material').some(([k, v]) => v == '')) {
-            return alert('Please fill all mandatory fields!')
+            return notify('Please fill all mandatory fields!')
         }
 
         data.year = Number(data.year);
         data.price = Number(data.price)
         await createRecord(data);
 
+        clear()
         ctx.page.redirect('/')
     } 
 }
