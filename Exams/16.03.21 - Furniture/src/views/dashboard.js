@@ -19,7 +19,7 @@ const dashboardTemplate = (data, search, onSearch) => html`
 
 
 export async function dashboardPage(ctx){
-    const searchParam = ctx.querystring.split('=')[1];
+    const searchParam = ctx.querystring.split('=')[1] || '';
 
     const data = await getFurniture(searchParam)
 
