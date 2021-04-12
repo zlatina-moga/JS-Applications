@@ -2,11 +2,15 @@ import {html} from 'https://unpkg.com/lit-html?module';
 import {getFurniture} from '../api/data.js';
 import {itemTemplate} from './common/item.js'
 
-const dashboardTemplate = (data) => html`
+const dashboardTemplate = (data, search, onSearch) => html`
 <div class="row space-top">
 <div class="col-md-12">
     <h1>Welcome to Furniture System</h1>
     <p>Select furniture from the catalog to view details.</p>
+    <div style="float:right">
+        <input id="searchInput" name="search" type="text" .value=${search}>
+        <button @click=${onSearch}>Search</button>
+    </div>
 </div>
 </div>
 <div class="row space-top">
@@ -15,7 +19,14 @@ const dashboardTemplate = (data) => html`
 
 
 export async function dashboardPage(ctx){
-    const data = await getFurniture()
+    const searchParam = ctx.querystring.split('=')[1];
 
-    ctx.render(dashboardTemplate(data))
+    const data = await getFurniture(searchParam)
+
+    ctx.render(dashboardTemplate(data, searchParam, onSearch))
+
+    function onSearch(event){
+        const search = encodeURIComponent(document.getElementById('searchInput').value);
+        ctx.page.redirect('/?search=' + search)
+    }
 }
