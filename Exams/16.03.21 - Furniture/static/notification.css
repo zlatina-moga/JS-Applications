@@ -1,0 +1,10 @@
+#notification {
+    display: inline-block;
+    background-color: lightcoral;
+    padding: 16px 32px;
+    color: black;
+    position: fixed;
+    top: 50px;
+    right: 300px;
+    cursor: pointer;
+}
