@@ -1,5 +1,6 @@
 import {html} from 'https://unpkg.com/lit-html?module';
 import {getItemById, deleteRecord} from '../api/data.js';
+import { createModal} from './modal.js';
 
 const detailsTemplate = (item, isOwner, onDelete) => html`
 <div class="row space-top">
@@ -38,10 +39,13 @@ export async function detailsPage(ctx){
     ctx.render(detailsTemplate(item, item._ownerId == userId, onDelete))
 
     async function onDelete(){
-        const confirmed = confirm('Are you sure you want to delete this item?');
-        if (confirmed){
-            await deleteRecord(item._id);
-            ctx.page.redirect('/')
+        createModal('Are you sure you want to delete this item?', onChoice);
+
+        async function onChoice(confirmed) {
+            if (confirmed){
+                await deleteRecord(item._id);
+                ctx.page.redirect('/')
+            }
         }
     }
 }
