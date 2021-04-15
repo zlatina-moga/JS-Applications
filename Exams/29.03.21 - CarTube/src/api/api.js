@@ -1,72 +1,86 @@
-import {clearUserData, getUserData, setUserData} from '../utility.js';
-export const settings = {host:''};
+export const settings = {
+    host: ''
+}
 
 async function request(url, options){
-    const response = await fetch(url, options)
     try {
-        if (response.ok == false) {
+        const response = await fetch(url, options);
+
+        if(response.ok == false){
             const error = await response.json();
             throw new Error(error.message)
         }
         try {
-            const data = await response.json()
-            return data;
-        } catch (error){
+            return await response.json();
+        } catch (err){
             return response;
         }
-    } catch (err){
-        alert(err.message)
-        throw err;
+    } catch (error) {
+        if (error.message === 'Invalid access token' || error.message === 'User session does not exist') {
+            sessionStorage.removeItem('authToken');
+            throw error;
+        }
+
+        //console.error(message)
+        throw error;
     }
 }
 
-function createOptions(method = 'get', body){
+function getOptions(method = 'get', body){
     const options = {
-        method,
+        method, 
         headers: {}
+    };
+    const token = sessionStorage.getItem('authToken')
+    if (token != null) {
+        options.headers['X-Authorization'] = token;
     }
-    const user = getUserData()
-    if(user){
-        options.headers['X-Authorization'] = user.accessToken;
-    }
+
     if(body){
         options.headers['Content-Type'] = 'application/json';
         options.body = JSON.stringify(body)
     }
+
     return options;
 }
 
-export async function get(url) {
-    return await request(url, createOptions)
+
+export async function get(url){
+    return await request(url, getOptions())
 }
 
-export async function post(url, data) {
-    return await request(url, createOptions('post', data))
+export async function post(url, data){
+    return await request(url, getOptions('post', data))
 }
 
-export async function put(url, data) {
-    return await request(url, createOptions('put', data))
+export async function put(url, data){
+    return await request(url, getOptions('put', data))
 }
 
-export async function del(url) {
-    return await request(url, createOptions('delete'))
+export async function del(url){
+    return await request(url, getOptions('delete'))
 }
 
 export async function login(username, password){
-    const result = await post(settings.host + '/users/login', {username, password})
-    setUserData(result)
+    const result = await post(settings.host + '/users/login', {username, password});
+    sessionStorage.setItem('username', result.username)
+    sessionStorage.setItem('authToken', result.accessToken)
+    sessionStorage.setItem('userId', result._id)
     return result;
 }
 
 export async function register(username, password){
-    const result = await post(settings.host + '/users/register', {username, password})
-    setUserData(result)
+    const result = await post(settings.host + '/users/register', {username, password});
+    sessionStorage.setItem('username', result.username)
+    sessionStorage.setItem('authToken', result.accessToken)
+    sessionStorage.setItem('userId', result._id)
     return result;
 }
 
-export function logout(){
-    const result = get(settings.host + '/users/logout');
-    clearUserData()
+export async function logout(){
+    const result = await get(settings.host + '/users/logout'); 
+    sessionStorage.removeItem('username')
+    sessionStorage.removeItem('authToken')
+    sessionStorage.removeItem('userId')   
     return result;
 }
-
