@@ -33,6 +33,15 @@ export async function myPets(){
 }
 
 
-export async function likePet(pet){
-    return await api.post(host + '/data/likes', pet)
+export async function likePet(petId){
+    return await api.post(host + '/data/likes', petId)
+}
+
+export async function getLikesByPetId(petId){
+    return await api.get(host + `/data/likes?where=petId%3D%22${petId}%22&distinct=_ownerId&count`)
+}
+
+export async function getPetLikesByOwner(petId){
+    const userId = sessionStorage.getItem('userId')
+    return await api.get(host + `/data/likes?where=petId%3D%22${petId}%22%20and%20_ownerId%3D%22${userId}%22&count`)
 }
