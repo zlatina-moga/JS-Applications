@@ -1,7 +1,7 @@
 import {html} from '../../node_modules/lit-html/lit-html.js';
-import {getPetById, deletePet, likePet} from '../api/data.js'
+import {getPetById, deletePet, likePet, getLikesByPetId} from '../api/data.js'
 
-const detailsTemplate = (pet, isCreator, onDelete, likeThisPet) => html`
+const detailsTemplate = (pet, isCreator, userId, onDelete, likeThisPet, likes) => html`
         <section id="details-page" class="details">
             <div class="pet-information">
                 <h3>Name: ${pet.name}</h3>
@@ -12,9 +12,20 @@ const detailsTemplate = (pet, isCreator, onDelete, likeThisPet) => html`
                 ${isCreator ? html`
                     <a class="button" href=${`/edit/${pet._id}`}>Edit</a>
                     <a @click=${onDelete} class="button" href="javascript:void(0)">Delete</a>` 
-                    : html `<a @click=${likeThisPet} id="likesSpan" class="button" href="#">Like</a>`}
-                    
+                    : ''}
+
+                ${(userId && !isCreator) ? html `
+                <a @click=${likeThisPet} class="button" href="javascript:void(0)">Like</a>
+                    <div class="likes">
+						<img class="hearts" src="/images/heart.png">
+						<span id="total-likes">Likes: ${likes}</span>
+					</div>`
+                 : html `<div class="likes">
+						<img class="hearts" src="/images/heart.png">
+						<span id="total-likes">Likes: ${likes}</span>
+					</div>`}
                 </div>
+
             </div>
             <div class="pet-description">
                 <h3>Description:</h3>
@@ -25,9 +36,11 @@ const detailsTemplate = (pet, isCreator, onDelete, likeThisPet) => html`
 export async function detailsPage(ctx){
     const petId = ctx.params.id;
     const pet = await getPetById(petId);
+    const id = pet._id
+    const likes = await getLikesByPetId(id)
     const userId = sessionStorage.getItem('userId')
     const isCreator = userId === pet._ownerId;
-    ctx.render(detailsTemplate(pet, isCreator, onDelete, likeThisPet))
+    ctx.render(detailsTemplate(pet, isCreator, userId, onDelete, likeThisPet, likes))
 
     async function onDelete(){
         const confirmed = confirm('Are you sure you want to delete this pet?')
@@ -38,11 +51,10 @@ export async function detailsPage(ctx){
     }
 
     async function likeThisPet(event){
-        const likesSpan = document.getElementById('likesSpan')
         event.target.remove();
-        const id = pet._id
-        const likes = await likePet(id)
-        likes++;
+        await likePet(id)
+        likes = await getLikesByPetId(id);
+        const likesSpan = document.getElementById('total-likes')
         likesSpan.textContent = likes + 'like' + (likes == 1 ? '' : 's')
     }
 }
